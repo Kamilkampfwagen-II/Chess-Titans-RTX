@@ -1,0 +1,10 @@
+# Ignore everything
+*
+
+# but these files
+!.gitignore
+!LICENSE
+!README.md
+
+!fullscreen.ps1
+!dxvk.conf
