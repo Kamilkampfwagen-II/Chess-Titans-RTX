@@ -192,6 +192,4 @@ if (Test-Path $chessConfigPath) {
 }
 Set-Content -Path $chessConfigPath -Value $chessConfig -Force
 
-# & "$ScriptPath/chess.exe"
-
-pause
+& "$ScriptPath/chess.exe"
