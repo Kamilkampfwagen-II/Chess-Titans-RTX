@@ -205,6 +205,7 @@ if (Test-Path $chessConfigPath) {
     $chessConfig[18] = "    <WindowY>100</WindowY>"
     $chessConfig[19] = "    <WindowWidth>$($scriptConfig.windowResolution[0])</WindowWidth>"
     $chessConfig[20] = "    <WindowHeight>$($scriptConfig.windowResolution[1])</WindowHeight>"
+    $chessConfig[21] = "    <WindowMaximized>false</WindowMaximized>"
 } else {
     $chessConfig = $chessConfigDefault
 }
