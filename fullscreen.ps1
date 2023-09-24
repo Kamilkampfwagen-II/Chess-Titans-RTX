@@ -17,13 +17,20 @@ if ($MyInvocation.MyCommand.CommandType -eq 'ExternalScript') {
 #   Options
 $scriptConfigDefault = @"
 {
+    "fullscreen": true,
     "windowResolution": [1920,1080]
 }
 "@ | ConvertFrom-Json
 $scriptConfig = $scriptConfigDefault
 $scriptConfigPath = "$ScriptPath/options.json"
 
+$dxwrapperConfigPath = "$ScriptPath/d3d9.ini"
+
 #   Options Parsing:
+if (!(Test-Path $dxwrapperConfigPath)) {
+    throw "DxWrapper configuration was not found, please validate your installation."
+}
+
 $rewrite = $false
 if (Test-Path $scriptConfigPath) {
     $scriptConfigUser = Get-Content $scriptConfigPath -Raw | ConvertFrom-Json -ErrorAction Ignore
@@ -37,6 +44,18 @@ if (Test-Path $scriptConfigPath) {
 }
 
 #   Validate options
+# Make sure fullscreen property exists
+if (!($scriptConfig | Get-Member 'fullscreen')) {
+    Add-Member -InputObject $scriptConfig -MemberType NoteProperty -Name 'fullscreen' -Value $scriptConfigDefault.fullscreen
+    $rewrite = $true
+}
+# Prevent non boolean values
+if ($scriptConfig.fullscreen -isnot [bool]) {
+    $scriptConfig.fullscreen = $scriptConfigDefault.fullscreen
+    $rewrite = $true
+}
+
+
 # Make sure windowResolution property exists
 if (!($scriptConfig | Get-Member 'windowResolution')) {
     Add-Member -InputObject $scriptConfig -MemberType NoteProperty -Name 'windowResolution' -Value $scriptConfigDefault.windowResolution
@@ -190,5 +209,14 @@ if (Test-Path $chessConfigPath) {
     $chessConfig = $chessConfigDefault
 }
 Set-Content -Path $chessConfigPath -Value $chessConfig -Force
+
+$dxwrapperConfig = Get-Content $dxwrapperConfigPath
+$i = $dxwrapperConfig.indexOf(($dxwrapperConfig | Select-String -Pattern '^FullscreenWindowMode\s*=\s*\d$'))
+if ($i -eq -1) {
+    Add-Content -Path $dxwrapperConfigPath -Value "FullscreenWindowMode       = $(if ($scriptConfig.fullscreen) {1} else {0})" -Force
+} else {
+    $dxwrapperConfig[$i] = "FullscreenWindowMode       = $(if ($scriptConfig.fullscreen) {1} else {0})"
+    Set-Content -Path $dxwrapperConfigPath -Value $dxwrapperConfig -Force
+}
 
 & "$ScriptPath/chess.exe"
