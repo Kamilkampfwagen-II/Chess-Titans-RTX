@@ -126,7 +126,15 @@ $defaultConfig = @"
 </Prefs>
 "@
 
-Set-Location $PSScriptRoot
+if ($MyInvocation.MyCommand.CommandType -eq 'ExternalScript') {
+    $ScriptPath = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
+} else {
+    $ScriptPath = Split-Path -Path ([Environment]::GetCommandLineArgs()[0]) -Parent
+    if (!$ScriptPath) { $ScriptPath = "." }
+}
+
+
+Set-Location $ScriptPath
 
 $configPath = "$env:LOCALAPPDATA/Microsoft Games/Chess Titans/ChessTitans.xml"
 if (Test-Path $configPath) {
@@ -142,4 +150,4 @@ if (Test-Path $configPath) {
 }
 Set-Content -Path $configPath -Value $config -Force
 
-Start-Process "./chess.exe" -WorkingDirectory '.' -PassThru
+Start-Process "$ScriptPath/chess.exe" -PassThru
