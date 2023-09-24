@@ -3,11 +3,63 @@ Put the following line to Steam -> Manage -> Properties -> Launch Options
 Powershell -ExecutionPolicy bypass -Command & ""%command%/../fullscreen.ps1""
 #>
 
-#   Options:
-$windowResolution = (1920,1080)
 
 #   Script start, don't touch the below:
-$defaultConfig = @"
+$ErrorActionPreference = 'Stop'
+
+if ($MyInvocation.MyCommand.CommandType -eq 'ExternalScript') {
+    $global:ScriptPath = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
+} else {
+    $global:ScriptPath = Split-Path -Path ([Environment]::GetCommandLineArgs()[0]) -Parent
+    if (!$ScriptPath) { $global:ScriptPath = "." }
+}
+
+#   Options
+$scriptConfigDefault = @"
+{
+    "windowResolution": [1920,1080]
+}
+"@ | ConvertFrom-Json
+$scriptConfig = $scriptConfigDefault
+$scriptConfigPath = "$ScriptPath/options.json"
+
+#   Options Parsing:
+$rewrite = $false
+if (Test-Path $scriptConfigPath) {
+    $scriptConfigUser = Get-Content $scriptConfigPath -Raw | ConvertFrom-Json -ErrorAction Ignore
+    if ($scriptConfigUser) {
+        $scriptConfig = $scriptConfigUser
+    } else {
+        $rewrite = $true
+    }
+} else {
+    $rewrite = $true
+}
+
+#   Validate options
+# Make sure windowResolution property exists
+if (!($scriptConfig | Get-Member 'windowResolution')) {
+    Add-Member -InputObject $scriptConfig -MemberType NoteProperty -Name 'windowResolution' -Value $scriptConfigDefault.windowResolution
+    $rewrite = $true
+    Write-Host "Set windowResolution to $($scriptConfigDefault.windowResolution)"
+}
+# Prevent non digit values
+if ("$($scriptConfig.windowResolution)" -notmatch '^\d+ \d+$') {
+    $scriptConfig.windowResolution = $scriptConfigDefault.windowResolution
+    $rewrite = $true
+}
+# Minimum resolution supported by Chess Titans is 640x420
+if ($scriptConfig.windowResolution[0] -lt 640 -or $scriptConfig.windowResolution[1] -lt 420) {
+    $scriptConfig.windowResolution = $scriptConfigDefault.windowResolution
+    $rewrite = $true
+}
+
+if ($rewrite) {
+    Set-Content -Path "$ScriptPath/options.json" -Value ($scriptConfig | ConvertTo-Json -Compress)
+}
+
+#   Default Config for Chess Titans
+$chessConfigDefault = @"
 <Prefs>
     <PlayAsWhite>true</PlayAsWhite>
     <PlayAnimations>true</PlayAnimations>
@@ -27,8 +79,8 @@ $defaultConfig = @"
     <BoardStyle>1</BoardStyle>
     <WindowX>100</WindowX>
     <WindowY>100</WindowY>
-    <WindowWidth>$($windowResolution[0])</WindowWidth>
-    <WindowHeight>$($windowResolution[1])</WindowHeight>
+    <WindowWidth>$($scriptConfig.windowResolution[0])</WindowWidth>
+    <WindowHeight>$($scriptConfig.windowResolution[1])</WindowHeight>
     <WindowMaximized>false</WindowMaximized>
     <TipHowToPlay>false</TipHowToPlay>
     <TipRotationFeature>false</TipRotationFeature>
@@ -126,28 +178,20 @@ $defaultConfig = @"
 </Prefs>
 "@
 
-if ($MyInvocation.MyCommand.CommandType -eq 'ExternalScript') {
-    $ScriptPath = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
+$chessConfigPath = "$env:LOCALAPPDATA/Microsoft Games/Chess Titans/ChessTitans.xml"
+if (Test-Path $chessConfigPath) {
+    $chessConfig = Get-Content -Path $chessConfigPath
+    $chessConfig[12] = "    <Rendering>2</Rendering>"
+    $chessConfig[13] = "    <RenderingLast3D>2</RenderingLast3D>"
+    $chessConfig[17] = "    <WindowX>100</WindowX>"
+    $chessConfig[18] = "    <WindowY>100</WindowY>"
+    $chessConfig[19] = "    <WindowWidth>$($scriptConfig.windowResolution[0])</WindowWidth>"
+    $chessConfig[20] = "    <WindowHeight>$($scriptConfig.windowResolution[1])</WindowHeight>"
 } else {
-    $ScriptPath = Split-Path -Path ([Environment]::GetCommandLineArgs()[0]) -Parent
-    if (!$ScriptPath) { $ScriptPath = "." }
+    $chessConfig = $chessConfigDefault
 }
+Set-Content -Path $chessConfigPath -Value $chessConfig -Force
 
+# & "$ScriptPath/chess.exe"
 
-Set-Location $ScriptPath
-
-$configPath = "$env:LOCALAPPDATA/Microsoft Games/Chess Titans/ChessTitans.xml"
-if (Test-Path $configPath) {
-    $config = Get-Content -Path $configPath
-    $config[12] = "    <Rendering>2</Rendering>"
-    $config[13] = "    <RenderingLast3D>2</RenderingLast3D>"
-    $config[17] = "    <WindowX>100</WindowX>"
-    $config[18] = "    <WindowY>100</WindowY>"
-    $config[19] = "    <WindowWidth>$($windowResolution[0])</WindowWidth>"
-    $config[20] = "    <WindowHeight>$($windowResolution[1])</WindowHeight>"
-} else {
-    $config = $defaultConfig
-}
-Set-Content -Path $configPath -Value $config -Force
-
-Start-Process "$ScriptPath/chess.exe" -PassThru
+pause
