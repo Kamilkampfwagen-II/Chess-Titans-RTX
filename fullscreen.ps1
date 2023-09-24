@@ -41,7 +41,6 @@ if (Test-Path $scriptConfigPath) {
 if (!($scriptConfig | Get-Member 'windowResolution')) {
     Add-Member -InputObject $scriptConfig -MemberType NoteProperty -Name 'windowResolution' -Value $scriptConfigDefault.windowResolution
     $rewrite = $true
-    Write-Host "Set windowResolution to $($scriptConfigDefault.windowResolution)"
 }
 # Prevent non digit values
 if ("$($scriptConfig.windowResolution)" -notmatch '^\d+ \d+$') {
