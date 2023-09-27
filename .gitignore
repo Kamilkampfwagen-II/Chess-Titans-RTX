@@ -6,8 +6,10 @@
 !LICENSE
 !README.md
 
-!fullscreen.ps1
+!Launcher
+!Launcher/*
 !options.json
 !*.conf
 !d3d9.ini
-!*.1337
+!Patches
+!Patches/*
