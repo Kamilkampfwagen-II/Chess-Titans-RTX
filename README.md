@@ -1,5 +1,6 @@
 # Chess Titans RTX
 This is an RTX Remix mod for the Chess Titans
+
 Constant frame and fov patches by [Adam](https://github.com/adamplayer)
 
 # Compiling the launcher:
