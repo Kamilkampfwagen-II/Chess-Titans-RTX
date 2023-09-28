@@ -93,8 +93,8 @@ $chessConfigDefault = @"
     <Rendering>2</Rendering>
     <RenderingLast3D>2</RenderingLast3D>
     <RandomizeStyles>false</RandomizeStyles>
-    <PieceStyle>3</PieceStyle>
-    <BoardStyle>3</BoardStyle>
+    <PieceStyle>2</PieceStyle>
+    <BoardStyle>2</BoardStyle>
     <WindowX>100</WindowX>
     <WindowY>100</WindowY>
     <WindowWidth>$($scriptConfig.windowResolution[0])</WindowWidth>
