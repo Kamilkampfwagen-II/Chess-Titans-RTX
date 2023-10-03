@@ -6,9 +6,7 @@
 !LICENSE
 !README.md
 
-!Launcher
-!Launcher/*
-!options.json
+!chess-rtx-launcher.bat
 !*.conf
 !d3d9.ini
 !Patches

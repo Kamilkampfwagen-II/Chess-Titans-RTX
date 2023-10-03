@@ -3,8 +3,9 @@ This is an RTX Remix mod for the Chess Titans
 
 Constant frametime and fov patches by [Adam](https://github.com/adamplayer)
 
-## Compiling the launcher:
-1. Clone the repository
-2. Run powershell at repo's root
-3. Install [PS2EXE](https://github.com/MScholtes/PS2EXE) powershell module by `Install-Module ps2exe`
-4. Run: `ps2exe ./Launcher/chess-rtx-launcher.ps1 -outputFile "Chess RTX Launcher.exe" -x64`
+## Chess Titans RTX Launcher:
+The launcher ensures that graphics level is set to 3, and disables the maximized property in case it was enabled in previous session.
+
+Without the launcher, borderless window won't align properly.
+
+*Don't mind the `.bat` extension, this is a Powershell script. This script makes use of [PS-BAT](https://github.com/Kamilkampfwagen-II/PS-BAT), which is makes it more convenient than using terminal or a separate batch file to run the script.*

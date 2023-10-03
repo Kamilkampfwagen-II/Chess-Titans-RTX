@@ -1,80 +1,44 @@
+$ErrorActionPreference = 'SilentlyContinue'
+rem <#
+	cls
+	@echo off
+	cd %~dp0
+	set "helper=$args=$args -split '';$Error.Clear();Set-Variable PSScript -Option Constant -Value ([ordered]@{Root=$args[0].Substring(0,$args[0].Length-1);Name=$args[1];FullName=$args[2];Args=$args[3..$args.length]}).AsReadOnly();Invoke-Command([ScriptBlock]::Create((Get-Content $args[2] -Raw))) -NoNewScope -ArgumentList $args[3..$args.Length]"
+
+	:initArg
+	set args=%~dp0%~nx0%0
+	if '%1'=='' goto exec
+	set args=%args%%1
+
+	:addArg
+	shift
+	if '%1'=='' goto exec
+	set args=%args%%1
+	goto addArg
+
+	:exec
+	Powershell.exe -ExecutionPolicy Bypass -Command $ErrorActionPreference = 'Continue';$args = '%args%';%helper%
+	exit
+rem #>
+
+#	---Chess Titans RTX Launcher---
+
 <#
 Put the following line to Steam -> Manage -> Properties -> Launch Options
-Powershell -ExecutionPolicy bypass -Command & ""%command%/../fullscreen.ps1""
+cmd /c ""%command%/../chess-rtx-launcher.bat""
 #>
 
 
-#   Script start, don't touch the below:
-$ErrorActionPreference = 'Stop'
-
-if ($MyInvocation.MyCommand.CommandType -eq 'ExternalScript') {
-    $global:ScriptPath = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
-} else {
-    $global:ScriptPath = Split-Path -Path ([Environment]::GetCommandLineArgs()[0]) -Parent
-    if (!$ScriptPath) { $global:ScriptPath = "." }
-}
-
 #   Options
-$scriptConfigDefault = @"
-{
-    "fullscreen": true,
-    "windowResolution": [1920,1080]
-}
-"@ | ConvertFrom-Json
-$scriptConfig = $scriptConfigDefault
-$scriptConfigPath = "$ScriptPath/options.json"
+$fullscreen = $true
 
-$dxwrapperConfigPath = "$ScriptPath/d3d9.ini"
-
-#   Options Parsing:
-if (!(Test-Path $dxwrapperConfigPath)) {
-    throw "DxWrapper configuration was not found, please validate your installation."
-}
-
-$rewrite = $false
-if (Test-Path $scriptConfigPath) {
-    $scriptConfigUser = Get-Content $scriptConfigPath -Raw | ConvertFrom-Json -ErrorAction Ignore
-    if ($scriptConfigUser) {
-        $scriptConfig = $scriptConfigUser
-    } else {
-        $rewrite = $true
-    }
-} else {
-    $rewrite = $true
-}
-
-#   Validate options
-# Make sure fullscreen property exists
-if (!($scriptConfig | Get-Member 'fullscreen')) {
-    Add-Member -InputObject $scriptConfig -MemberType NoteProperty -Name 'fullscreen' -Value $scriptConfigDefault.fullscreen
-    $rewrite = $true
-}
-# Prevent non boolean values
-if ($scriptConfig.fullscreen -isnot [bool]) {
-    $scriptConfig.fullscreen = $scriptConfigDefault.fullscreen
-    $rewrite = $true
-}
+# Uncommon ratios don't work
+$windowResolution = (1920,1080)
 
 
-# Make sure windowResolution property exists
-if (!($scriptConfig | Get-Member 'windowResolution')) {
-    Add-Member -InputObject $scriptConfig -MemberType NoteProperty -Name 'windowResolution' -Value $scriptConfigDefault.windowResolution
-    $rewrite = $true
-}
-# Prevent non digit values
-if ("$($scriptConfig.windowResolution)" -notmatch '^\d+ \d+$') {
-    $scriptConfig.windowResolution = $scriptConfigDefault.windowResolution
-    $rewrite = $true
-}
-# Minimum resolution supported by Chess Titans is 640x420
-if ($scriptConfig.windowResolution[0] -lt 640 -or $scriptConfig.windowResolution[1] -lt 420) {
-    $scriptConfig.windowResolution = $scriptConfigDefault.windowResolution
-    $rewrite = $true
-}
+#   Script start, don't touch the below:
+$ErrorActionPreference = 'Inquire'
 
-if ($rewrite) {
-    Set-Content -Path "$ScriptPath/options.json" -Value ($scriptConfig | ConvertTo-Json -Compress)
-}
 
 #   Default Config for Chess Titans
 $chessConfigDefault = @"
@@ -97,8 +61,8 @@ $chessConfigDefault = @"
     <BoardStyle>2</BoardStyle>
     <WindowX>100</WindowX>
     <WindowY>100</WindowY>
-    <WindowWidth>$($scriptConfig.windowResolution[0])</WindowWidth>
-    <WindowHeight>$($scriptConfig.windowResolution[1])</WindowHeight>
+    <WindowWidth>$($windowResolution[0])</WindowWidth>
+    <WindowHeight>$($windowResolution[1])</WindowHeight>
     <WindowMaximized>false</WindowMaximized>
     <TipHowToPlay>false</TipHowToPlay>
     <TipRotationFeature>false</TipRotationFeature>
@@ -196,6 +160,8 @@ $chessConfigDefault = @"
 </Prefs>
 "@
 
+
+# Configure Chess Titans
 $chessConfigPath = "$env:LOCALAPPDATA/Microsoft Games/Chess Titans/ChessTitans.xml"
 if (Test-Path $chessConfigPath) {
     $chessConfig = Get-Content -Path $chessConfigPath
@@ -203,21 +169,24 @@ if (Test-Path $chessConfigPath) {
     $chessConfig[13] = "    <RenderingLast3D>2</RenderingLast3D>"
     $chessConfig[17] = "    <WindowX>100</WindowX>"
     $chessConfig[18] = "    <WindowY>100</WindowY>"
-    $chessConfig[19] = "    <WindowWidth>$($scriptConfig.windowResolution[0])</WindowWidth>"
-    $chessConfig[20] = "    <WindowHeight>$($scriptConfig.windowResolution[1])</WindowHeight>"
+    $chessConfig[19] = "    <WindowWidth>$($windowResolution[0])</WindowWidth>"
+    $chessConfig[20] = "    <WindowHeight>$($windowResolution[1])</WindowHeight>"
     $chessConfig[21] = "    <WindowMaximized>false</WindowMaximized>"
 } else {
     $chessConfig = $chessConfigDefault
 }
 Set-Content -Path $chessConfigPath -Value $chessConfig -Force
 
-$dxwrapperConfig = Get-Content $dxwrapperConfigPath
+
+# Configure DxWrapper
+$dxwrapperConfig = Get-Content './d3d9.ini'
 $i = $dxwrapperConfig.indexOf(($dxwrapperConfig | Select-String -Pattern '^FullscreenWindowMode\s*=\s*\d$'))
 if ($i -eq -1) {
-    Add-Content -Path $dxwrapperConfigPath -Value "FullscreenWindowMode       = $(if ($scriptConfig.fullscreen) {1} else {0})" -Force
+    Add-Content -Path './d3d9.ini' -Value "FullscreenWindowMode       = $(if ($fullscreen) {1} else {0})" -Force
 } else {
-    $dxwrapperConfig[$i] = "FullscreenWindowMode       = $(if ($scriptConfig.fullscreen) {1} else {0})"
-    Set-Content -Path $dxwrapperConfigPath -Value $dxwrapperConfig -Force
+    $dxwrapperConfig[$i] = "FullscreenWindowMode       = $(if ($fullscreen) {1} else {0})"
+    Set-Content -Path './d3d9.ini' -Value $dxwrapperConfig -Force
 }
 
-& "$ScriptPath/chess.exe"
+# Start the Chess Titans
+& "$($PSScript.Root)/chess.exe"
