@@ -1,5 +1,5 @@
 $ErrorActionPreference = 'SilentlyContinue'
-rem <#
+rem <# Head into "#  Options" for configuration
 	cls
 	@echo off
 	cd %~dp0
@@ -39,6 +39,20 @@ $windowResolution = (1920,1080)
 #   Script start, don't touch the below:
 $ErrorActionPreference = 'Inquire'
 
+
+Write-Host 'Chess Titans ' -NoNewline
+Write-Host 'RTX' -ForegroundColor Green
+Write-Host ''
+
+Write-Host 'Configuration:' -BackgroundColor White -ForegroundColor Black
+Write-Host 'Display Mode: ' -NoNewline
+Write-Host "$(if ($fullscreen) {'Fullscreen'} else {'Windowed'})" -ForegroundColor Cyan
+Write-Host 'Resolution: ' -NoNewline
+Write-Host "$($windowResolution[0])x$($windowResolution[1])" -ForegroundColor Cyan
+Write-Host ''
+
+Write-Host '^ Edit the script to reconfigure ^' -ForegroundColor Yellow
+Start-Sleep -Seconds 2
 
 #   Default Config for Chess Titans
 $chessConfigDefault = @"
@@ -190,3 +204,5 @@ if ($i -eq -1) {
 
 # Start the Chess Titans
 & "$($PSScript.Root)/chess.exe"
+
+Start-Sleep -Seconds 3
