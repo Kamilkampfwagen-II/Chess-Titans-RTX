@@ -179,13 +179,16 @@ $chessConfigDefault = @"
 $chessConfigPath = "$env:LOCALAPPDATA/Microsoft Games/Chess Titans/ChessTitans.xml"
 if (Test-Path $chessConfigPath) {
     $chessConfig = Get-Content -Path $chessConfigPath
+
     $chessConfig[12] = "    <Rendering>2</Rendering>"
     $chessConfig[13] = "    <RenderingLast3D>2</RenderingLast3D>"
-    $chessConfig[17] = "    <WindowX>100</WindowX>"
-    $chessConfig[18] = "    <WindowY>100</WindowY>"
-    $chessConfig[19] = "    <WindowWidth>$($windowResolution[0])</WindowWidth>"
-    $chessConfig[20] = "    <WindowHeight>$($windowResolution[1])</WindowHeight>"
     $chessConfig[21] = "    <WindowMaximized>false</WindowMaximized>"
+    if ($fullscreen) {
+        $chessConfig[17] = "    <WindowX>100</WindowX>"
+        $chessConfig[18] = "    <WindowY>100</WindowY>"
+        $chessConfig[19] = "    <WindowWidth>$($windowResolution[0])</WindowWidth>"
+        $chessConfig[20] = "    <WindowHeight>$($windowResolution[1])</WindowHeight>"
+    }
 } else {
     $chessConfig = $chessConfigDefault
 }
