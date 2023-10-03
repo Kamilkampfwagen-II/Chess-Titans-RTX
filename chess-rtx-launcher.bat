@@ -189,6 +189,7 @@ if (Test-Path $chessConfigPath) {
 } else {
     $chessConfig = $chessConfigDefault
 }
+# I have no idea why the $chessConfig is in script scope and the following works just fine ¯\_(ツ)_/¯
 Set-Content -Path $chessConfigPath -Value $chessConfig -Force
 
 
