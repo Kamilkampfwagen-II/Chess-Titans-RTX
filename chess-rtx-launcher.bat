@@ -33,7 +33,7 @@ cmd /c ""%command%/../chess-rtx-launcher.bat""
 $fullscreen = $true
 
 # Uncommon ratios don't work
-$windowResolution = (1920,1080)
+$windowResolution = 1920,1080
 
 
 #   Script start, don't touch the below:
