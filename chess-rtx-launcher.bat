@@ -77,7 +77,7 @@ if ($scriptConfig) {
         $scriptConfig['WindowResolution'] = ($primaryMonitorSize.Width, $primaryMonitorSize.Height)
     }
 
-    if ($scriptConfig['WindowResolution'].Length -ne 2 -or $scriptConfig['WindowResolution'][0] -lt 640 -or $scriptConfig['WindowResolution'][1] -lt 420) {
+    if ($scriptConfig['WindowResolution'].Length -ne 2) {
         $scriptConfig['WindowResolution'] = $scriptConfigDefault['WindowResolution']
     }
 } else {
