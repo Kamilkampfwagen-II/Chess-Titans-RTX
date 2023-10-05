@@ -37,12 +37,9 @@ $ErrorActionPreference = 'Inquire'
 $scriptConfigDefault = @{
 
     'Fullscreen' = 'True'
-
-    # Uncommon ratios don't work
     'WindowResolution' = 'AUTO'
-
-    # Supported values: none|error|warn|info|debug
     'RemixLogLevel' = 'error'
+
 }
 $scriptConfigPath = './launcher.conf'
 $scriptConfig = Get-Content $scriptConfigPath -Raw -ErrorAction Ignore | ConvertFrom-StringData
