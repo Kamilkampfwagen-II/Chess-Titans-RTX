@@ -56,6 +56,13 @@ if ($scriptConfig) {
             $scriptConfig[$key] = $scriptConfigDefault[$key]
         }
 
+        # Construct booleans
+        if ($scriptConfig[$key] -eq 'True') {
+            $scriptConfig[$key] = $true
+        } elseif ($scriptConfig[$key] -eq 'False') {
+            $scriptConfig[$key] = $false
+        }
+
         # Construct lists
         if ($scriptConfig[$key].Contains(',')) {
             $scriptConfig[$key] = $scriptConfig[$key].Split(',')
@@ -63,13 +70,6 @@ if ($scriptConfig) {
 
         # Works on lists as well
         $scriptConfig[$key] = $scriptConfig[$key].Trim()
-
-        # Construct booleans
-        if ($scriptConfig[$key] -eq 'True') {
-            $scriptConfig[$key] = $true
-        } elseif ($scriptConfig[$key] -eq 'False') {
-            $scriptConfig[$key] = $false
-        }
 
     }
 
