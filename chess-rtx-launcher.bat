@@ -29,15 +29,54 @@ cmd /c ""%command%/../chess-rtx-launcher.bat""
 #>
 
 
-#   Options
-$fullscreen = $true
-
-# Uncommon ratios don't work
-$windowResolution = 1920,1080
-
-
 #   Script start, don't touch the below:
 $ErrorActionPreference = 'Inquire'
+
+
+# Read Config
+$scriptConfigDefault = @{
+
+    'Fullscreen' = $true
+
+    # Uncommon ratios don't work
+    'WindowResolution' = 1920,1080
+
+}
+$scriptConfigPath = './launcher.conf'
+$scriptConfig = Get-Content $scriptConfigPath -Raw -ErrorAction Ignore | ConvertFrom-StringData
+
+if ($scriptConfig) {
+    # I don't have a better method in mind, please inform me if you do
+    foreach ($key in $scriptConfigDefault.Keys) {
+
+        # Fill in blanks in the read config     
+        if (!$scriptConfig[$key]) {
+            $scriptConfig[$key] = $scriptConfigDefault[$key]
+        }
+
+        # Construct lists
+        if ($scriptConfig[$key].Contains(',')) {
+            $scriptConfig[$key] = $scriptConfig[$key].Split(',')
+        }
+
+        # Works on lists as well
+        $scriptConfig[$key] = $scriptConfig[$key].Trim()
+
+        # Construct booleans
+        if ($scriptConfig[$key] -eq 'True') {
+            $scriptConfig[$key] = $true
+        } elseif ($scriptConfig[$key] -eq 'False') {
+            $scriptConfig[$key] = $false
+        }
+
+    }
+
+    if ($scriptConfig['WindowResolution'].Length -ne 2 -or $scriptConfig['WindowResolution'][0] -lt 640 -or $scriptConfig['WindowResolution'][1] -lt 420) {
+        $scriptConfig['WindowResolution'] = $scriptConfigDefault['WindowResolution']
+    }
+} else {
+    $scriptConfig = $scriptConfigDefault
+}
 
 
 Write-Host 'Chess Titans ' -NoNewline
@@ -46,13 +85,14 @@ Write-Host ''
 
 Write-Host 'Configuration:' -BackgroundColor White -ForegroundColor Black
 Write-Host 'Display Mode: ' -NoNewline
-Write-Host "$(if ($fullscreen) {'Fullscreen'} else {'Windowed'})" -ForegroundColor Cyan
+Write-Host "$(if ($scriptConfig['Fullscreen']) {'Fullscreen'} else {'Windowed'})" -ForegroundColor Cyan
 Write-Host 'Resolution: ' -NoNewline
-Write-Host "$($windowResolution[0])x$($windowResolution[1])" -ForegroundColor Cyan
+Write-Host "$($scriptConfig['WindowResolution'][0])x$($scriptConfig['WindowResolution'][1])" -ForegroundColor Cyan
 Write-Host ''
 
-Write-Host '^ Edit the script to reconfigure ^' -ForegroundColor Yellow
+Write-Host '^ Edit the "launcher.conf" to reconfigure ^' -ForegroundColor Yellow
 Start-Sleep -Seconds 2
+
 
 #   Default Config for Chess Titans
 $chessConfigDefault = @"
@@ -75,8 +115,8 @@ $chessConfigDefault = @"
     <BoardStyle>2</BoardStyle>
     <WindowX>100</WindowX>
     <WindowY>100</WindowY>
-    <WindowWidth>$($windowResolution[0])</WindowWidth>
-    <WindowHeight>$($windowResolution[1])</WindowHeight>
+    <WindowWidth>$($scriptConfig['WindowResolution'][0])</WindowWidth>
+    <WindowHeight>$($scriptConfig['WindowResolution'][1])</WindowHeight>
     <WindowMaximized>false</WindowMaximized>
     <TipHowToPlay>false</TipHowToPlay>
     <TipRotationFeature>false</TipRotationFeature>
@@ -183,11 +223,11 @@ if (Test-Path $chessConfigPath) {
     $chessConfig[12] = "    <Rendering>2</Rendering>"
     $chessConfig[13] = "    <RenderingLast3D>2</RenderingLast3D>"
     $chessConfig[21] = "    <WindowMaximized>false</WindowMaximized>"
-    if ($fullscreen) {
+    if ($scriptConfig['Fullscreen']) {
         $chessConfig[17] = "    <WindowX>100</WindowX>"
         $chessConfig[18] = "    <WindowY>100</WindowY>"
-        $chessConfig[19] = "    <WindowWidth>$($windowResolution[0])</WindowWidth>"
-        $chessConfig[20] = "    <WindowHeight>$($windowResolution[1])</WindowHeight>"
+        $chessConfig[19] = "    <WindowWidth>$($scriptConfig['WindowResolution'][0])</WindowWidth>"
+        $chessConfig[20] = "    <WindowHeight>$($scriptConfig['WindowResolution'][1])</WindowHeight>"
     }
 } else {
     $chessConfig = $chessConfigDefault
@@ -200,9 +240,9 @@ Set-Content -Path $chessConfigPath -Value $chessConfig -Force
 $dxwrapperConfig = Get-Content './d3d9.ini'
 $i = $dxwrapperConfig.indexOf(($dxwrapperConfig | Select-String -Pattern '^FullscreenWindowMode\s*=\s*\d$'))
 if ($i -eq -1) {
-    Add-Content -Path './d3d9.ini' -Value "FullscreenWindowMode       = $(if ($fullscreen) {1} else {0})" -Force
+    Add-Content -Path './d3d9.ini' -Value "FullscreenWindowMode       = $(if ($scriptConfig['Fullscreen']) {1} else {0})" -Force
 } else {
-    $dxwrapperConfig[$i] = "FullscreenWindowMode       = $(if ($fullscreen) {1} else {0})"
+    $dxwrapperConfig[$i] = "FullscreenWindowMode       = $(if ($scriptConfig['Fullscreen']) {1} else {0})"
     Set-Content -Path './d3d9.ini' -Value $dxwrapperConfig -Force
 }
 
