@@ -1,5 +1,5 @@
 $ErrorActionPreference = 'SilentlyContinue'
-rem <# Head into "#  Options" for configuration
+rem <#
 	cls
 	@echo off
 	cd %~dp0
