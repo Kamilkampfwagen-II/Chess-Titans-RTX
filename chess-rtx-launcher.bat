@@ -36,7 +36,7 @@ $ErrorActionPreference = 'Inquire'
 # Read Config
 $scriptConfigDefault = @{
 
-    'Fullscreen' = $true
+    'Fullscreen' = 'True'
 
     # Uncommon ratios don't work
     'WindowResolution' = 'AUTO'
