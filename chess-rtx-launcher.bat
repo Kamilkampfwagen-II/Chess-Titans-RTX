@@ -39,7 +39,7 @@ $scriptConfigDefault = @{
     'Fullscreen' = $true
 
     # Uncommon ratios don't work
-    'WindowResolution' = 1920,1080
+    'WindowResolution' = 'AUTO'
 
 }
 $scriptConfigPath = './launcher.conf'
@@ -69,6 +69,12 @@ if ($scriptConfig) {
             $scriptConfig[$key] = $false
         }
 
+    }
+
+    if ($scriptConfig['WindowResolution'] -eq 'AUTO') {
+        Add-Type -AssemblyName System.Windows.Forms
+        $primaryMonitorSize = [System.Windows.Forms.SystemInformation]::PrimaryMonitorSize
+        $scriptConfig['WindowResolution'] = ($primaryMonitorSize.Width, $primaryMonitorSize.Height)
     }
 
     if ($scriptConfig['WindowResolution'].Length -ne 2 -or $scriptConfig['WindowResolution'][0] -lt 640 -or $scriptConfig['WindowResolution'][1] -lt 420) {
