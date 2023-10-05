@@ -243,13 +243,14 @@ Set-Content -Path $chessConfigPath -Value $chessConfig -Force
 
 
 # Configure DxWrapper
+$newLine = "FullscreenWindowMode       = $(if ($scriptConfig['Fullscreen']) {1} else {0})"
 $dxwrapperConfig = Get-Content './d3d9.ini'
-$i = $dxwrapperConfig.indexOf(($dxwrapperConfig | Select-String -Pattern '^FullscreenWindowMode\s*=\s*\d$'))
-if ($i -eq -1) {
-    Add-Content -Path './d3d9.ini' -Value "FullscreenWindowMode       = $(if ($scriptConfig['Fullscreen']) {1} else {0})" -Force
-} else {
-    $dxwrapperConfig[$i] = "FullscreenWindowMode       = $(if ($scriptConfig['Fullscreen']) {1} else {0})"
+$match = $dxwrapperConfig | Select-String -Pattern '^FullscreenWindowMode\s*=\s*\d$'
+if ($match) {
+    $dxwrapperConfig[$match.LineNumber -1] = $newLine
     Set-Content -Path './d3d9.ini' -Value $dxwrapperConfig -Force
+} else {
+    Add-Content -Path './d3d9.ini' -Value $newLine
 }
 
 # Start the Chess Titans
