@@ -41,6 +41,8 @@ $scriptConfigDefault = @{
     # Uncommon ratios don't work
     'WindowResolution' = 'AUTO'
 
+    # Supported values: none|error|warn|info|debug
+    'RemixLogLevel' = 'error'
 }
 $scriptConfigPath = './launcher.conf'
 $scriptConfig = Get-Content $scriptConfigPath -Raw -ErrorAction Ignore | ConvertFrom-StringData
@@ -80,6 +82,8 @@ if ($scriptConfig) {
     if ($scriptConfig['WindowResolution'].Length -ne 2) {
         $scriptConfig['WindowResolution'] = $scriptConfigDefault['WindowResolution']
     }
+
+    $scriptConfig['RemixLogLevel'] = $scriptConfig['RemixLogLevel'].ToString().ToLower()
 } else {
     $scriptConfig = $scriptConfigDefault
 }
@@ -253,7 +257,27 @@ if ($match) {
     Add-Content -Path './d3d9.ini' -Value $newLine
 }
 
+
+# Configure Bridge
+$bridgeLogLevel = (Get-Culture).TextInfo.ToTitleCase($scriptConfig['RemixLogLevel'])
+$newLine = "logLevel = $bridgeLogLevel"
+$bridgeConfig = Get-Content './.trex/bridge.conf'
+$match = $bridgeConfig | Select-String -Pattern '^logLevel\s*='
+
+if ($match) {
+    $bridgeConfig[$match.LineNumber -1] = $newLine
+    Set-Content -Path './.trex/bridge.conf' -Value $bridgeConfig -Force
+} else {
+    Add-Content -Path './.trex/bridge.conf' -Value $newLine
+}
+
+
+# Configure dxvk log level
+$env:DXVK_LOG_LEVEL = $scriptConfig['RemixLogLevel']
+
+
 # Start the Chess Titans
 & "$($PSScript.Root)/chess.exe"
+
 
 Start-Sleep -Seconds 3

@@ -1,13 +1,16 @@
 # Ignore everything
 *
 
-# but these files
+# but these
 !.gitignore
 !LICENSE
 !README.md
 
-!chess-rtx-launcher.bat
-!*.conf
-!d3d9.ini
 !Patches
 !Patches/*
+
+!chess-rtx-launcher.bat
+!.trex
+!.trex/bridge.conf
+!*.conf
+!d3d9.ini
