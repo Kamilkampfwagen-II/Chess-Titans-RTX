@@ -31,6 +31,7 @@ cmd /c ""%command%/../chess-rtx-launcher.bat""
 
 #   Script start, don't touch the below:
 $ErrorActionPreference = 'Inquire'
+Set-Location -Path $PSScript.Root
 
 
 # Read Config
@@ -273,7 +274,7 @@ $env:DXVK_LOG_LEVEL = $scriptConfig['RemixLogLevel']
 
 
 # Start the Chess Titans
-& "$($PSScript.Root)/chess.exe"
+& './chess.exe'
 
 
 Start-Sleep -Seconds 3
