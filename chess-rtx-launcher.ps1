@@ -238,7 +238,16 @@ if ($match) {
 # Configure dxvk log level
 $env:DXVK_LOG_LEVEL = $scriptConfig['RemixLogLevel']
 
+# Kill any existing instances 
+# Do not go gentle into that good night,
+$oldProcess = Get-Process -Name 'chess' -ErrorAction Ignore
+if ($oldProcess -and $oldProcess.MainModule.FileName -eq "$PSScriptRoot\chess.exe") {
+    # Old age should burn and rave at close of day;
+    $oldProcess.Kill()
+}
+
 # Start the Chess Titans
+# Rage, rage against the dying of the light.
 & './chess.exe'
 
 Start-Sleep -Seconds 3
