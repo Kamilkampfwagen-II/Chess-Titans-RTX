@@ -1,38 +1,11 @@
-$ErrorActionPreference = 'SilentlyContinue'
-rem <#
-	cls
-	@echo off
-	cd %~dp0
-	set "helper=$args=$args -split '';$Error.Clear();Set-Variable PSScript -Option Constant -Value ([ordered]@{Root=$args[0].Substring(0,$args[0].Length-1);Name=$args[1];FullName=$args[2];Args=$args[3..$args.length]}).AsReadOnly();Invoke-Command([ScriptBlock]::Create((Get-Content $args[2] -Raw))) -NoNewScope -ArgumentList $args[3..$args.Length]"
-
-	:initArg
-	set args=%~dp0%~nx0%0
-	if '%1'=='' goto exec
-	set args=%args%%1
-
-	:addArg
-	shift
-	if '%1'=='' goto exec
-	set args=%args%%1
-	goto addArg
-
-	:exec
-	Powershell.exe -ExecutionPolicy Bypass -Command $ErrorActionPreference = 'Continue';$args = '%args%';%helper%
-	exit
-rem #>
-
-#	---Chess Titans RTX Launcher---
-
 <#
 Put the following line to Steam -> Manage -> Properties -> Launch Options
-cmd /c ""%command%/../chess-rtx-launcher.bat""
+Powershell -ExecutionPolicy bypass -Command & ""%command%/../chess-rtx-launcher.ps1""
 #>
-
 
 #   Script start, don't touch the below:
 $ErrorActionPreference = 'Inquire'
-Set-Location -Path $PSScript.Root
-
+Set-Location -Path $PSScriptRoot
 
 # Read Config
 $scriptConfigDefault = @{
@@ -85,7 +58,6 @@ if ($scriptConfig) {
     $scriptConfig = $scriptConfigDefault
 }
 
-
 Write-Host 'Chess Titans ' -NoNewline
 Write-Host 'RTX' -ForegroundColor Green
 Write-Host ''
@@ -98,8 +70,6 @@ Write-Host "$($scriptConfig['WindowResolution'][0])x$($scriptConfig['WindowResol
 Write-Host ''
 
 Write-Host '^ Edit the "launcher.conf" to reconfigure ^' -ForegroundColor Yellow
-Start-Sleep -Seconds 2
-
 
 #   Default Config for Chess Titans
 $chessConfigDefault = @"
@@ -221,7 +191,6 @@ $chessConfigDefault = @"
 </Prefs>
 "@
 
-
 # Configure Chess Titans
 $chessConfigPath = "$env:LOCALAPPDATA/Microsoft Games/Chess Titans/ChessTitans.xml"
 if (Test-Path $chessConfigPath) {
@@ -242,7 +211,6 @@ if (Test-Path $chessConfigPath) {
 # I have no idea why the $chessConfig is in script scope and the following works just fine ¯\_(ツ)_/¯
 Set-Content -Path $chessConfigPath -Value $chessConfig -Force
 
-
 # Configure DxWrapper
 $newLine = "FullscreenWindowMode       = $(if ($scriptConfig['Fullscreen']) {1} else {0})"
 $dxwrapperConfig = Get-Content './d3d9.ini'
@@ -253,7 +221,6 @@ if ($match) {
 } else {
     Add-Content -Path './d3d9.ini' -Value $newLine
 }
-
 
 # Configure Bridge
 $bridgeLogLevel = (Get-Culture).TextInfo.ToTitleCase($scriptConfig['RemixLogLevel'])
@@ -268,13 +235,10 @@ if ($match) {
     Add-Content -Path './.trex/bridge.conf' -Value $newLine
 }
 
-
 # Configure dxvk log level
 $env:DXVK_LOG_LEVEL = $scriptConfig['RemixLogLevel']
 
-
 # Start the Chess Titans
 & './chess.exe'
-
 
 Start-Sleep -Seconds 3
