@@ -10,6 +10,7 @@
 !Patches/*
 
 !chess-rtx-launcher.ps1
+!start.bat
 !.trex
 !.trex/bridge.conf
 !*.conf
