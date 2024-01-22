@@ -23,12 +23,6 @@ https://github.com/Kamilkampfwagen-II/Chess-Titans-RTX
 
 :warning: Disable `Volumetric Lightning` on AMD gpus. The mods below might overwrite it!
 
-# Try [Adam](https://github.com/adamplayer)'s mod: https://discord.com/channels/1028444667789967381/1110245358040260668/1153229638097702923 
-- 3D scenes around the chess board. Sponza scene requires 8GB of vram. Includes the @tadpole3159's mod.
-
-# Try @tadpole3159's mod: https://discord.com/channels/1028444667789967381/1110245358040260668/1147594078851190884
-- Remastered materials and translucent pieces
-
 # Wrappers Used:
 - DxWrapper (not used for dx8 to 9 convertion)
 
