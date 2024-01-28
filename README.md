@@ -4,6 +4,9 @@ Constant frametime and fov patches by [Adam](https://github.com/adamplayer)
 *@tadpole3159's mod in action*
 ![image](https://github.com/Kamilkampfwagen-II/Chess-Titans-RTX/assets/84380947/5391d254-758c-4a25-a5e9-2e4b53259773)
 
+*@tadpole3159's mod, with mirror-like black pieces*
+![image](https://github.com/Kamilkampfwagen-II/Chess-Titans-RTX/assets/84380947/2ac5c77a-ba22-4d0b-83ea-30644b456fbb)
+
 
 ## Chess Titans RTX ASI:
 An ASI mod for use with RTX Remix that lifts the need for both dxwrapper and the old launcher script:
