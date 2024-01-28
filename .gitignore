@@ -9,9 +9,7 @@
 !Patches
 !Patches/*
 
-!chess-rtx-launcher.ps1
-!start.bat
 !.trex
 !.trex/bridge.conf
 !*.conf
-!d3d9.ini
+!chess_titans_rtx.conf
