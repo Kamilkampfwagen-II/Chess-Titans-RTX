@@ -11,7 +11,7 @@
 
 !.trex
 !.trex/bridge.conf
-!*.conf
+!dxvk.conf
 !chess_titans_rtx.conf
 
 !chess-titans-rtx-asi
